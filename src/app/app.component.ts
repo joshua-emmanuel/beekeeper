@@ -1,14 +1,15 @@
 import { Component, inject } from '@angular/core';
-import { RouterLink, RouterOutlet } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { ExpenseStore } from './data/expense.store';
-@Component({ selector: 'app-root', standalone: true, imports: [RouterOutlet, RouterLink], template: `
+@Component({ selector: 'app-root', standalone: true, imports: [RouterOutlet, RouterLink, RouterLinkActive], template: `
   <div class="app-frame">
     <aside class="sidebar">
-      <a class="brand" routerLink="/" aria-label="Bee Keeper dashboard"><span class="brand-mark">✳</span><span>Bee Keeper<small>Shared costs, in good order</small></span></a>
-      <div class="side-label">WORKSPACE</div><a class="nav-link active" routerLink="/"><span class="nav-icon">▦</span> Expenses</a>
-      <div class="sidebar-bottom"><div class="bee-note"><div class="bee-note-icon">✳</div><strong>Little by little,<br>it all adds up.</strong><span>Keep your shared spending clear and easy.</span></div><div class="local-note"><span class="status-dot"></span>Saved in this browser</div></div>
+      <div class="sidebar-top"><a class="brand" routerLink="/" aria-label="Bee Keeper home"><span class="brand-mark">♧</span><span>Bee Keeper<small>Shared expenses</small></span></a>
+        <nav class="side-nav" aria-label="Main navigation"><a class="nav-link" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}"><span class="nav-icon">⌂</span> Home</a><a class="nav-link" routerLink="/" fragment="plans"><span class="nav-icon">▧</span> My plans</a></nav>
+      </div>
+      <div class="sidebar-bottom"><div class="profile-card"><span class="profile-hex">FA</span><span><strong>Funnito A.</strong><small>Personal workspace</small></span></div><div class="local-note"><span class="status-dot"></span>Saved in this browser</div></div>
     </aside>
-    <main class="main-area"><header class="mobile-header"><a class="brand" routerLink="/"><span class="brand-mark">✳</span><span>Bee Keeper</span></a><a class="mobile-add" routerLink="/expenses/new" aria-label="New expense">＋</a></header>
+    <main class="main-area"><header class="desktop-topbar"><div class="breadcrumbs"><span>Workspace</span><b>›</b><strong>{{crumb}}</strong></div><div class="topbar-actions"><button class="notification-button" aria-label="Notifications">♧</button><span class="profile-hex small-hex">FA</span></div></header><header class="mobile-header"><a class="brand" routerLink="/"><span class="brand-mark">♧</span><span>Bee Keeper</span></a><a class="mobile-add" routerLink="/expenses/new" aria-label="New expense">＋</a></header>
       @if (store.recovery(); as problem) { <section class="recovery" role="alert"><div><strong>We couldn’t load your saved expenses</strong><p>{{problem}}</p></div><div class="recovery-actions"><button class="button secondary small" (click)="store.retry()">Retry loading</button><button class="button danger small" (click)="confirmReset()">Reset local data</button></div></section> }
       <router-outlet />
     </main>
@@ -18,5 +19,7 @@ import { ExpenseStore } from './data/expense.store';
 ` })
 export class AppComponent {
   readonly store = inject(ExpenseStore);
+  private readonly router = inject(Router);
+  get crumb(): string { const url = this.router.url; return url.includes('/new') ? 'New Honey Drop' : url.includes('/edit') ? 'Edit Honey Drop' : url.includes('/expenses/') ? 'Honey Drop Summary' : 'Home'; }
   confirmReset(): void { document.querySelector<HTMLDialogElement>('.confirm-dialog')?.showModal(); }
 }
